@@ -62,30 +62,15 @@
 
 		function redirect(){
 			VIVE_AVATAR_DOMAIN = "avatar.viverse.com";
-			VIVE_API_DOMAIN = "world-api.viverse.com";
-			signInUrl = `https://${window.location.hostname}/api/v3/oauth/login?hl=en_US&callback=${encodeURIComponent(window.location.href)}`;
-			if(window.location.hostname == "world.viverse.com"){
-				cmsRedirectUrl = `https://${VIVE_API_DOMAIN}/api/hubs-cms/v1/redirect-avatar?state=${encodeURIComponent(window.location.href)}`;
-				window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?redirect_url=${encodeURIComponent(cmsRedirectUrl)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
-			}
-			else if(window.location.hostname == "world-dev.viverse.com"){
+			
+			if(window.location.hostname == "world-dev.viverse.com"){
 				VIVE_AVATAR_DOMAIN = "vr-viverse-web.htcwowdev.com";
-				VIVE_API_DOMAIN = "world-api-dev.viverse.com";
-				cmsRedirectUrl = `https://${VIVE_API_DOMAIN}/api/hubs-cms/v1/redirect-avatar?state=${encodeURIComponent(window.location.href)}`;
-				window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?redirect_url=${encodeURIComponent(cmsRedirectUrl)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
 			}
 			else if (window.location.hostname == 'world-stage.viverse.com'){
 				VIVE_AVATAR_DOMAIN = 'avatar-stage.viverse.com';
-				VIVE_API_DOMAIN = "world-api-stage.viverse.com";
-				cmsRedirectUrl = `https://${VIVE_API_DOMAIN}/api/hubs-cms/v1/redirect-avatar?state=${encodeURIComponent(window.location.href)}`;
-				window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?redirect_url=${encodeURIComponent(cmsRedirectUrl)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
 			}
-			else{
-				VIVE_AVATAR_DOMAIN = 'avatar.viverse.com';
-				VIVE_API_DOMAIN = "world-api.viverse.com";
-				cmsRedirectUrl = `https://${VIVE_API_DOMAIN}/api/hubs-cms/v1/redirect-avatar?state=${encodeURIComponent(window.location.href)}`;
-				window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?redirect_url=${encodeURIComponent(cmsRedirectUrl)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
-			}
+			signInUrl = `https://${VIVE_AVATAR_DOMAIN}/api/login?callback_url=${window.location.href}`;
+			window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?version=v2&redirect_url=${encodeURIComponent(window.location.href)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
 		}
 
 		cookieKey = '';
