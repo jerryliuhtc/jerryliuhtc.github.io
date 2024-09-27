@@ -42,49 +42,7 @@
 
 <body>
 	<script>
-		function getParameterByName(name, url = window.location.href) {
-			name = name.replace(/[\[\]]/g, '\\$&');
-			var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-				results = regex.exec(url);
-			if (!results) return null;
-			if (!results[2]) return '';
-			return decodeURIComponent(results[2].replace(/\+/g, ' '));
-		}
 
-		function getCookieByName(name) {
-			var cookie = `; ${document.cookie}`
-			var parts = cookie.split(`; ${name}=`);
-			var res = ""
-
-			if (parts.length === 2) res = parts.pop().split(';').shift();
-			return res;
-		}
-
-		function redirect() {
-			VIVE_AVATAR_DOMAIN = "avatar.viverse.com";
-			if(window.location.hostname == "world-dev.viverse.com"){
-				VIVE_AVATAR_DOMAIN = "vr-viverse-web.htcwowdev.com";
-			}
-			else if (window.location.hostname == 'world-stage.viverse.com'){
-				VIVE_AVATAR_DOMAIN = 'avatar-stage.viverse.com';
-			}
-			signInUrl = `https://${VIVE_AVATAR_DOMAIN}/api/login?callback_url=${window.location.href}`;
-			window.location = `https://${VIVE_AVATAR_DOMAIN}/avatar/select-your-avatar?version=v2&redirect_url=${encodeURIComponent(window.location.href)}&sign_in_redirect_url=${encodeURIComponent(signInUrl)}`;
-		}
-
-		cookieKey = '';
-		if (window.location.hostname == "world.viverse.com") {
-			cookieKey = '_htc_access_token_production';
-		}
-		else if (window.location.hostname == 'world-stage.viverse.com') {
-			cookieKey = '_htc_access_token_stage';
-		}
-		else {
-			cookieKey = '_htc_access_token_production';
-		}
-		if (!getCookieByName(cookieKey) && !getParameterByName('avatar_url')) {
-			//redirect();
-		}
 	</script>
 	<div id="gameContainer">
 		<canvas id="unity-canvas" data-pixel-art=""></canvas>
@@ -171,12 +129,15 @@
 					});
 				}
 
-				if (!window.location.search.includes('code=') || !window.location.search.includes('state=')) {
+				//console.log('viverseClient check:', window.location.search);
+				if (window.location.search.includes('error=')){
+					// error case
+					console.log('viverseClient loginWithRedirect error: ' + window.location.search);
+				} else if (!window.location.search.includes('code=') || !window.location.search.includes('state=')) {
 					console.log('viverseClient loginWithRedirect');
 					// login
 					globalThis.viverseClient.loginWithRedirect({ redirectionUrl: window.location.href });
 				} else {
-					//console.log('viverseClient has login:', window.location.search);
 					console.log('viverseClient has login');
 					try {
 						const result = await globalThis.viverseClient.handleRedirectCallback();
@@ -191,7 +152,7 @@
 			}
 
 			async function _GetProfile(objectName, funcName) {
-				console.log('viverseClient GetProfile: ' + objectName + '.' + funcName);
+				console.log('viverseClient GetProfile');
 				const accessToken = await globalThis.viverseClient.getToken();
 				if (accessToken) {
 					if (!globalThis.avatarClient) {
@@ -211,6 +172,21 @@
 					console.log('viverseClient getProfile no accessToken');
 					unityInstance.SendMessage(objectName, funcName, null);
 					//return null;
+				}
+			}
+
+			async function _GetAvatarFile(avatarUrl, objectName, funcName){
+				console.log('viverseClient GetAvatarFile');
+				try{
+					const arrayBuffer = await globalThis.avatarClient.getAvatarFileWithSDK(avatarUrl);
+
+					var blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+					var blobUrl = URL.createObjectURL(blob);
+					//console.log('blobUrl:' + blobUrl);
+					unityInstance.SendMessage(objectName, funcName, blobUrl);
+				}catch(e){
+					console.log('sdk load avatar error:' + e);
+					unityInstance.SendMessage(objectName, funcName, '');
 				}
 			}
 
